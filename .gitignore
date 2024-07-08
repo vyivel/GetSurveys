@@ -1,0 +1,4 @@
+.idea/
+
+# TODO: test db
+db.sqlite3
