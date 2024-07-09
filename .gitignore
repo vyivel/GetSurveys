@@ -1,4 +1,7 @@
 .idea/
 
+__pycache__/
+*.py[cod]
+
 # TODO: test db
 db.sqlite3
