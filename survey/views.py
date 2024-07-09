@@ -1,26 +1,24 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 
+from rest_framework import permissions, viewsets, generics
+
 from .models import Survey
+from .serializers import SurveySerializer
 
 
-def form(request):
-    return render(
-        request,
-        "survey/index.html",
-    )
+class SurveyList(generics.ListCreateAPIView):
+    queryset = Survey.objects.all()
+    serializer_class = SurveySerializer
+
+    def get_permissions(self):
+        self.permission_classes = [permissions.BasePermission]
+        if self.request.method == "GET":
+            self.permission_classes = [permissions.IsAuthenticated]
+        return super(SurveyList, self).get_permissions()
 
 
-def submit(request):
-    print("name: " + request.POST["name"])
-    print("poc: " + request.POST["poc"])
-    survey = Survey(
-        name=request.POST["name"],
-        point_of_contact=request.POST["poc"],
-        phone_number="TODO",
-        description="TODO",
-        email="meow@example.com",
-        address="TODO",
-    )
-    survey.save()
-    return HttpResponse("submitted")
+class SurveyDetail(generics.RetrieveDestroyAPIView):
+    queryset = Survey.objects.all()
+    serializer_class = SurveySerializer
+    permission_classes = [permissions.IsAuthenticated]

@@ -11,12 +11,19 @@
 <form action="{% url 'submit' %}" method="post">
     {% csrf_token %}
     <div style="display: flex; flex-direction: column;">
-        <label for="name">Name</label>
+        <label for="name">Название компании</label>
         <input type="text" name="name" id="name"></input>
-        <label for="point_of_contact">Point of contact</label>
-        <input type="text" name="poc" id="point_of_contact"></input>
+        <label for="poc">Контактное лицо</label>
+        <input type="text" name="poc" id="poc"></input>
+        <label for="phone_number">Номер телефона</label>
+        <input type="text" name="phone_number" id="phone_number"></input>
+        <label for="desc">Описание заявки</label>
+        <textarea name="desc" id="desc"></textarea>
+        <label for="email">Адрес электронной почты</label>
+        <input type="email" name="email" id="email"></input>
+        <label for="company">Адрес компании</label>
+        <input type="text" name="company" id="company"></input>
     </div>
-    <p>etc</p>
     <input type="submit" value="Send!!!!!">
 </form>
 
