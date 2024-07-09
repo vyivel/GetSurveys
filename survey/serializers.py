@@ -7,8 +7,7 @@ class SurveySerializer(serializers.HyperlinkedModelSerializer):
         model = Survey
         fields = [
             "id",
-            # TODO
-            # "url",
+            "url",
             "name",
             "point_of_contact",
             "phone_number",

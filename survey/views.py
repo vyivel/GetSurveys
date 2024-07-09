@@ -1,7 +1,4 @@
-from django.http import HttpResponse
-from django.shortcuts import render
-
-from rest_framework import permissions, viewsets, generics
+from rest_framework import permissions, generics
 
 from .models import Survey
 from .serializers import SurveySerializer
