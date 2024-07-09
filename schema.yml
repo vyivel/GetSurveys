@@ -4,11 +4,11 @@ info:
   version: 1.0.0
   description: TODO
 paths:
-  /survey/surveys/:
+  /api/surveys/:
     get:
-      operationId: survey_surveys_list
+      operationId: api_surveys_list
       tags:
-      - survey
+      - api
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -22,9 +22,9 @@ paths:
                   $ref: '#/components/schemas/Survey'
           description: ''
     post:
-      operationId: survey_surveys_create
+      operationId: api_surveys_create
       tags:
-      - survey
+      - api
       requestBody:
         content:
           application/json:
@@ -47,9 +47,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Survey'
           description: ''
-  /survey/surveys/{id}:
+  /api/surveys/{id}/:
     get:
-      operationId: survey_surveys_retrieve
+      operationId: api_surveys_retrieve
       parameters:
       - in: path
         name: id
@@ -57,7 +57,7 @@ paths:
           type: integer
         required: true
       tags:
-      - survey
+      - api
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -69,7 +69,7 @@ paths:
                 $ref: '#/components/schemas/Survey'
           description: ''
     delete:
-      operationId: survey_surveys_destroy
+      operationId: api_surveys_destroy
       parameters:
       - in: path
         name: id
@@ -77,7 +77,7 @@ paths:
           type: integer
         required: true
       tags:
-      - survey
+      - api
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -92,6 +92,10 @@ components:
         id:
           type: integer
           readOnly: true
+        url:
+          type: string
+          format: uri
+          readOnly: true
         name:
           type: string
           maxLength: 255
@@ -103,6 +107,7 @@ components:
           maxLength: 15
         description:
           type: string
+          maxLength: 20000
         email:
           type: string
           format: email
@@ -117,6 +122,7 @@ components:
       - name
       - phone_number
       - point_of_contact
+      - url
   securitySchemes:
     basicAuth:
       type: http

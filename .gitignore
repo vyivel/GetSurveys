@@ -3,5 +3,8 @@
 __pycache__/
 *.py[cod]
 
+# TODO: idk
+schema.yaml
+
 # TODO: test db
 db.sqlite3
