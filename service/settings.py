@@ -19,8 +19,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "api.apps.ApiConfig",
     "rest_framework",
+    "corsheaders",
+    "api.apps.ApiConfig",
     "drf_spectacular",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -119,6 +121,10 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:5173",  # for development
+]
 
 # Email config
 DEFAULT_FROM_EMAIL = "from@example.com"

@@ -55,6 +55,7 @@ paths:
         name: id
         schema:
           type: integer
+        description: A unique integer value identifying this survey.
         required: true
       tags:
       - api
@@ -75,6 +76,7 @@ paths:
         name: id
         schema:
           type: integer
+        description: A unique integer value identifying this survey.
         required: true
       tags:
       - api
@@ -115,7 +117,12 @@ components:
         address:
           type: string
           maxLength: 255
+        created:
+          type: string
+          format: date-time
+          readOnly: true
       required:
+      - created
       - description
       - email
       - id
