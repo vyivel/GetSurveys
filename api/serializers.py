@@ -14,4 +14,5 @@ class SurveySerializer(serializers.HyperlinkedModelSerializer):
             "description",
             "email",
             "address",
+            "created",
         ]
