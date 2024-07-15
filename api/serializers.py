@@ -1,8 +1,91 @@
-from .models import Survey
+import enum
+
+from django.contrib.auth import authenticate
 from rest_framework import serializers
+
+from .models import Survey
+
+
+class System(enum.Enum):
+    erp = 1 << 0
+    mes = 1 << 1
+    wms = 1 << 2
+    qcs = 1 << 3
+    da = 1 << 4
+    iot = 1 << 5
+    crm = 1 << 6
+    pa = 1 << 7
+    rl = 1 << 8
+    bi = 1 << 9
+    hrm = 1 << 10
+    pacs = 1 << 11
+
+
+class AuthTokenSerializer(serializers.Serializer):
+    username = serializers.CharField(write_only=True)
+    password = serializers.CharField(
+        style={"input_type": "password"},
+        trim_whitespace=False,
+        write_only=True,
+    )
+
+    def validate(self, attrs):
+        username = attrs.get("username")
+        password = attrs.get("password")
+
+        if username and password:
+            user = authenticate(
+                request=self.context.get("request"),
+                username=username,
+                password=password,
+            )
+
+            # The authenticate call simply returns None for is_active=False
+            # users. (Assuming the default ModelBackend authentication
+            # backend.)
+            if not user:
+                raise serializers.ValidationError(
+                    "Unable to log in with provided credentials.", code="authorization"
+                )
+
+        else:
+            raise serializers.ValidationError(
+                'Must include "username" and "password"', code="authorization"
+            )
+
+        attrs["user"] = user
+        return attrs
 
 
 class SurveySerializer(serializers.HyperlinkedModelSerializer):
+    systems = serializers.ListField(child=serializers.CharField(), write_only=True)
+
+    def validate(self, attrs):
+        systems = attrs.pop("systems", None)
+        if systems:
+            n = 0
+            for s in systems:
+                if not isinstance(s, str):
+                    raise serializers.ValidationError(f"All systems must be strings")
+                try:
+                    n |= System[s].value
+                except KeyError:
+                    raise serializers.ValidationError(f"Unknown system {s}")
+            attrs["systems"] = n
+        super().validate(attrs)
+        return attrs
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        systems = instance.systems
+        if systems:
+            names = []
+            for s in System:
+                if instance.systems & s.value:
+                    names.append(s.name)
+            representation["systems"] = names
+        return representation
+
     class Meta:
         model = Survey
         fields = [
@@ -14,5 +97,6 @@ class SurveySerializer(serializers.HyperlinkedModelSerializer):
             "description",
             "email",
             "address",
+            "systems",
             "created",
         ]

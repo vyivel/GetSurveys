@@ -20,8 +20,9 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "rest_framework",
+    "knox",
     "corsheaders",
-    "api.apps.ApiConfig",
+    "api",
     "drf_spectacular",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -68,8 +69,12 @@ WSGI_APPLICATION = "service.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "getsurveys",
+        "USER": "survey_user",
+        "PASSWORD": "hunter2",
+        "HOST": "db",
+        "PORT": "",
     }
 }
 
@@ -96,6 +101,10 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
     ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        # "knox.auth.TokenAuthentication",
+        "api.auth.CookieTokenAuthentication",
+    ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
@@ -104,7 +113,6 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "TODO",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
-    # OTHER SETTINGS
 }
 
 # Internationalization
@@ -125,6 +133,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:5173",  # for development
 ]
+
+CORS_ALLOW_CREDENTIALS = True
 
 # Email config
 DEFAULT_FROM_EMAIL = "from@example.com"

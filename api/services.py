@@ -10,6 +10,7 @@ def mail_thread_target(**kwargs):
     try:
         emails = list(get_user_model().objects.values_list("email", flat=True))
         subject = "Новая анкета"
+        # TODO: correct url
         message = (f'Новая анкета от "{name}": {url}',)
         print(emails)
         send_mail(

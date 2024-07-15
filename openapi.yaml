@@ -4,14 +4,50 @@ info:
   version: 1.0.0
   description: TODO
 paths:
+  /api/login/:
+    post:
+      operationId: api_login_create
+      tags:
+        - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
+      security:
+        - knoxApiToken: [ ]
+        - { }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
+  /api/logout/:
+    post:
+      operationId: api_logout_create
+      tags:
+        - api
+      security:
+        - knoxApiToken: [ ]
+      responses:
+        '200':
+          description: No response body
   /api/surveys/:
     get:
       operationId: api_surveys_list
       tags:
-      - api
+        - api
       security:
-      - cookieAuth: []
-      - basicAuth: []
+        - knoxApiToken: [ ]
       responses:
         '200':
           content:
@@ -24,7 +60,7 @@ paths:
     post:
       operationId: api_surveys_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -38,8 +74,7 @@ paths:
               $ref: '#/components/schemas/Survey'
         required: true
       security:
-      - cookieAuth: []
-      - basicAuth: []
+        - knoxApiToken: [ ]
       responses:
         '201':
           content:
@@ -51,17 +86,16 @@ paths:
     get:
       operationId: api_surveys_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this survey.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this survey.
+          required: true
       tags:
-      - api
+        - api
       security:
-      - cookieAuth: []
-      - basicAuth: []
+        - knoxApiToken: [ ]
       responses:
         '200':
           content:
@@ -72,22 +106,33 @@ paths:
     delete:
       operationId: api_surveys_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this survey.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this survey.
+          required: true
       tags:
-      - api
+        - api
       security:
-      - cookieAuth: []
-      - basicAuth: []
+        - knoxApiToken: [ ]
       responses:
         '204':
           description: No response body
 components:
   schemas:
+    AuthToken:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+      required:
+        - password
+        - username
     Survey:
       type: object
       properties:
@@ -117,24 +162,28 @@ components:
         address:
           type: string
           maxLength: 255
+        systems:
+          type: array
+          items:
+            type: string
+          writeOnly: true
         created:
           type: string
           format: date-time
           readOnly: true
       required:
-      - created
-      - description
-      - email
-      - id
-      - name
-      - phone_number
-      - point_of_contact
-      - url
+        - created
+        - description
+        - email
+        - id
+        - name
+        - phone_number
+        - point_of_contact
+        - systems
+        - url
   securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
-    cookieAuth:
+    knoxApiToken:
       type: apiKey
-      in: cookie
-      name: sessionid
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"

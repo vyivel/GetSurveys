@@ -1,0 +1,43 @@
+name: getsurveys
+
+services:
+  api:
+    build: .
+    container_name: api
+    networks:
+      - default
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./api/
+          target: /app/api
+        - action: sync+restart
+          path: ./service/
+          target: /app/service
+        - action: rebuild
+          path: ./requirements.txt
+          target: /app/requirements.txt
+
+  db:
+    image: postgres
+    restart: always
+    networks:
+      - default
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: survey_user
+      POSTGRES_PASSWORD: hunter2
+
+networks:
+  default:
+
+
+volumes:
+  postgres:
