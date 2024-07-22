@@ -19,7 +19,7 @@ export default () => {
         </Show>
         <Switch>
             <Match when={list.error}>
-                <p>Не удалось загрузить спиок анкет!</p>
+                <p>Не удалось загрузить список анкет!</p>
             </Match>
             <Match when={list()}>
                 <ul>

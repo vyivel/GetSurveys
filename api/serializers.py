@@ -3,7 +3,7 @@ import enum
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
-from .models import Survey
+from .models import Survey, Session
 
 
 class System(enum.Enum):
@@ -19,42 +19,6 @@ class System(enum.Enum):
     bi = 1 << 9
     hrm = 1 << 10
     pacs = 1 << 11
-
-
-class AuthTokenSerializer(serializers.Serializer):
-    username = serializers.CharField(write_only=True)
-    password = serializers.CharField(
-        style={"input_type": "password"},
-        trim_whitespace=False,
-        write_only=True,
-    )
-
-    def validate(self, attrs):
-        username = attrs.get("username")
-        password = attrs.get("password")
-
-        if username and password:
-            user = authenticate(
-                request=self.context.get("request"),
-                username=username,
-                password=password,
-            )
-
-            # The authenticate call simply returns None for is_active=False
-            # users. (Assuming the default ModelBackend authentication
-            # backend.)
-            if not user:
-                raise serializers.ValidationError(
-                    "Unable to log in with provided credentials.", code="authorization"
-                )
-
-        else:
-            raise serializers.ValidationError(
-                'Must include "username" and "password"', code="authorization"
-            )
-
-        attrs["user"] = user
-        return attrs
 
 
 class SurveySerializer(serializers.HyperlinkedModelSerializer):
@@ -100,3 +64,32 @@ class SurveySerializer(serializers.HyperlinkedModelSerializer):
             "systems",
             "created",
         ]
+
+
+class UserSerializer(serializers.Serializer):
+    username = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        username = attrs.get("username")
+        password = attrs.get("password")
+
+        if username and password:
+            user = authenticate(username=username, password=password)
+            if not user:
+                raise serializers.ValidationError("Invalid credentials.")
+        else:
+            raise serializers.ValidationError("Insufficient data.")
+
+        attrs["user"] = user
+        return attrs
+
+
+class SessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Session
+        fields = ["username"]
+
+
+class EmptySerializer(serializers.Serializer):
+    pass

@@ -1,14 +1,15 @@
 /* @refresh reload */
-import { Component, ParentProps } from 'solid-js';
 import { render } from 'solid-js/web'
+import Cookies from 'js-cookie'
 import { Route, Router } from "@solidjs/router";
 
-import { createClient } from '@hey-api/client-fetch';
+import { client, createClient } from '@hey-api/client-fetch';
 
 import SurveyForm from './pages/SurveyForm';
 import SurveyView from './pages/SurveyView';
 import SurveyList from './pages/SurveyList';
 import Login from './pages/Login';
+import App from './base/App';
 
 createClient({
     // TODO: load from env
@@ -16,22 +17,21 @@ createClient({
     credentials: 'include',
 });
 
+client.interceptors.request.use((request, _options) => {
+    let token = Cookies.get('csrftoken');
+    if (token) {
+        request.headers.set('x-csrftoken', token);
+    }
+    return request;
+})
 
 // TODO: move out
-const App: Component<ParentProps> = props => (
-    // TODO: move styles out
-    <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-        <main>
-            <h1>Анкета</h1>
-            {props.children}
-        </main>
-    </div>
-)
 
 render(() => (
     <Router root={App}>
         <Route path='/new' component={SurveyForm} />
         <Route path='/login' component={Login} />
+        {/* <Route path='/logout' component={Logout} /> */}
         <Route path='/list' component={SurveyList} />
         <Route path='/view/:id' component={SurveyView} matchFilters={{
             id: /^\d+$/,

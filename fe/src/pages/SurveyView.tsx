@@ -31,6 +31,7 @@ export default () => {
                 <p>poc: {survey()!.point_of_contact}</p>
                 <p>phone: {survey()!.phone_number}</p>
                 <p>email: {survey()!.email}</p>
+                <p>address: {survey()!.address}</p>
                 <p>systems: {survey()!.systems.join(", ")}</p>
                 <h2>description</h2>
                 <p>{survey()!.description}</p>

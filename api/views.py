@@ -1,50 +1,45 @@
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .auth import CookieTokenAuthentication
-from .models import Survey
+from . import serializers
+from .models import Survey, Session
 from .services import notify_survey
-from .serializers import SurveySerializer, AuthTokenSerializer
+from .serializers import SurveySerializer, UserSerializer, SessionSerializer
 
-from rest_framework import mixins, viewsets
-from knox.views import LoginView as KnoxLoginView
-from knox.views import LogoutView as KnoxLogoutView
+from rest_framework import mixins, viewsets, status
 
 
-class LoginView(KnoxLoginView):
-    authentication_classes = [CookieTokenAuthentication]
-    permission_classes = []
-    serializer_class = AuthTokenSerializer
+class LoginView(APIView):
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
 
-    def post(self, request, format_=None):
-        serializer = AuthTokenSerializer(data=request.data)
+    def post(self, request, _format=None):
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
         login(request, user)
-        response = super(LoginView, self).post(request, format=None)
-
-        token = response.data["token"]
-        del response.data["token"]
-
-        response.set_cookie(
-            "auth_token",
-            token,
-            httponly=True,
-            # samesite="strict",
-        )
-
-        return response
+        return Response(None, status=status.HTTP_202_ACCEPTED)
 
 
-class LogoutView(KnoxLogoutView):
-    authentication_classes = [CookieTokenAuthentication]
+class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = None
+    serializer_class = serializers.EmptySerializer
 
-    def post(self, request, format_=None):
-        response = super(LogoutView, self).post(request, format=None)
-        response.delete_cookie("auth_token")
-        return response
+    def post(self, request, _format=None):
+        logout(request)
+        return Response(None, status=status.HTTP_200_OK)
+
+
+class SessionView(APIView):
+    serializer_class = SessionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        session = Session(username=request.user.username)
+        serializer = self.serializer_class(session)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class SurveyViewSet(

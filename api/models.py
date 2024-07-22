@@ -14,3 +14,7 @@ class Survey(models.Model):
 
     class Meta:
         ordering = ["created"]
+
+
+class Session(models.Model):
+    username = models.CharField()
