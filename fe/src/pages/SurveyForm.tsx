@@ -1,46 +1,16 @@
-import { Accessor, createSignal, createUniqueId, For } from "solid-js"
+import { createSignal } from "solid-js"
 import { apiSurveysCreate } from "../openapi"
 
-import './SurveyForm.scss'
-
-interface FormFieldProps {
-    type: string;
-    label: string;
-    value: Accessor<string>;
-    setValue: (value: string) => void;
-    required?: boolean;
-}
-
-const FormField = (props: FormFieldProps) => {
-    const id = createUniqueId();
-    return <div class="field">
-        <label for={id}>{props.label}</label>
-        <input type={props.type} id={id} value={props.value()} onInput={(e) => props.setValue(e.target.value)} required={props.required} />
-    </div>
-}
-
-interface System {
-    id: string;
-    name: string;
-    value: () => boolean,
-    setValue: (value: boolean) => void,
-}
+import Form from "../components/Form";
+import FormInputField from "../components/FormInputField";
+import FormTextareaField from "../components/FormTextareaField";
+import SystemConstructor from "../components/SystemConstructor";
+import { System } from "../types/System";
+import Page from "../components/Page";
 
 const makeSystem = (id: string, name: string): System => {
     const [value, setValue] = createSignal<boolean>(false);
     return { id, name, value, setValue };
-}
-
-interface SystemBoxProps {
-    system: System;
-}
-
-const SystemBox = (props: SystemBoxProps) => {
-    const id = createUniqueId();
-    return <div id={props.system.id} class="system-box">
-        <input type="checkbox" id={id} checked={props.system.value()} onInput={(e) => props.system.setValue(e.target.checked)} />
-        <label for={id}>{props.system.name}</label>
-    </div>
 }
 
 export default () => {
@@ -66,8 +36,7 @@ export default () => {
         makeSystem("pacs", "СКУД"),
     ]
 
-    async function submit(e: Event) {
-        e.preventDefault();
+    async function submit(_e: Event) {
         const response = await apiSurveysCreate({
             body: {
                 name: name(),
@@ -84,27 +53,24 @@ export default () => {
             }
         });
         if (response.data) {
-            window.location.replace('/new')
+            window.location.replace('/thanks')
         }
     }
 
-    return <form onSubmit={submit}>
-        <fieldset class="fieldset">
-            <FormField type="text" label="Название компании" value={name} setValue={setName} required />
-            <FormField type="text" label="Контактное лицо" value={pointOfContact} setValue={setPointOfContact} required />
-            <FormField type="tel" label="Номер телефона" value={phoneNumber} setValue={setPhoneNumber} required />
-            <FormField type="email" label="Электронная почта" value={email} setValue={setEmail} required />
-            <FormField type="text" label="Адрес компании" value={address} setValue={setAddress} />
-            <div class="field">
-                <label for='desc'>Описание заявки</label>
-                <textarea id='desc' value={description()} onInput={(e) => setDescription(e.target.value)} required />
+    return <Page heading="Анкета">
+        <Form submitName="Отправить" onSubmit={submit}>
+            <FormInputField label="Название компании" value={name} setValue={setName} required />
+            <FormInputField label="Контактное лицо" value={pointOfContact} setValue={setPointOfContact} required />
+            <FormInputField type="tel" label="Номер телефона" value={phoneNumber} setValue={setPhoneNumber} required />
+            <FormInputField type="email" label="Электронная почта" value={email} setValue={setEmail} required />
+            <FormInputField label="Адрес компании" value={address} setValue={setAddress} />
+            <FormTextareaField label="Описание заявки" value={description} setValue={setDescription} required />
+            <div>
+                <p>
+                    Выберите системы, используемые на предприятии (по желанию):
+                </p>
+                <SystemConstructor systems={systems} />
             </div>
-            <div class="system-constructor">
-                <For each={systems}>{(system, _) =>
-                    <SystemBox system={system} />
-                }</For>
-            </div>
-        </fieldset>
-        <button type="submit">Отправить</button>
-    </form>
+        </Form>
+    </Page>
 }

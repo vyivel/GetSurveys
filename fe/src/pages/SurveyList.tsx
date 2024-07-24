@@ -1,3 +1,4 @@
+import Page from "../components/Page";
 import { apiSurveysList } from "../openapi"
 import { createResource, For, Match, Show, Switch } from "solid-js";
 
@@ -8,12 +9,10 @@ export default () => {
             if (result.data) {
                 return result.data;
             }
-            // XXX: not required?
-            console.log(result.error);
             throw result.error;
         });
 
-    return <>
+    return <Page heading="Список анкет">
         <Show when={list.loading}>
             <p>Загрузка...</p>
         </Show>
@@ -22,14 +21,22 @@ export default () => {
                 <p>Не удалось загрузить список анкет!</p>
             </Match>
             <Match when={list()}>
-                <ul>
-                    <For each={list()!}>{(item, _i) =>
-                        <li>
-                            <a href={`/view/${item.id}`}>{item.name} ({item.created})</a>
-                        </li>
-                    }</For>
-                </ul>
+                <Show when={list()!.length > 0} fallback={
+                    <p>
+                        <i>Нет доступных анкет.</i>
+                    </p>
+                }>
+                    <ul>
+                        <For each={list()!}>{(item, _i) =>
+                            <li>
+                                <a href={`/view/${item.id}`}>
+                                    Анкета от <q>{item.name}</q> ({item.email}, {item.phone_number})
+                                </a>
+                            </li>
+                        }</For>
+                    </ul>
+                </Show>
             </Match>
         </Switch>
-    </>
+    </Page>
 }

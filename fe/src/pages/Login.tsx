@@ -1,5 +1,7 @@
 import { createSignal, Show } from "solid-js";
 import { apiLoginCreate } from "../openapi"
+import Form from "../components/Form";
+import FormInputField from "../components/FormInputField";
 
 export default () => {
     const [username, setUsername] = createSignal<string>('');
@@ -28,20 +30,9 @@ export default () => {
                 Не удалось войти! Проверьте правильность ввода данных.
             </p>
         </Show>
-        <form onSubmit={submit}>
-            <fieldset>
-                <div>
-                    <label for="username">Логин</label>
-                    <input type="text" id="username" value={username()}
-                        onInput={(e) => setUsername(e.target.value)} />
-                </div>
-                <div>
-                    <label for="password">Пароль</label>
-                    <input type="text" id="password" value={password()}
-                        onInput={(e) => setPassword(e.target.value)} />
-                </div>
-            </fieldset>
-            <button type="submit">Войти</button>
-        </form>
+        <Form submitName="Войти" onSubmit={submit}>
+            <FormInputField label="Логин" value={username} setValue={setUsername} required />
+            <FormInputField type="password" label="Пароль" value={password} setValue={setPassword} required />
+        </Form>
     </>
 }

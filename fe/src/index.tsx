@@ -10,13 +10,17 @@ import SurveyView from './pages/SurveyView';
 import SurveyList from './pages/SurveyList';
 import Login from './pages/Login';
 import App from './base/App';
+import NotFound from './pages/NotFound';
+
+import './index.scss'
+import SurveyThanks from './pages/SurveyThanks';
 
 createClient({
-    // TODO: load from env
-    baseUrl: 'http://localhost:8000',
+    baseUrl: import.meta.env.VITE_API_BASE,
     credentials: 'include',
 });
 
+// CSRF
 client.interceptors.request.use((request, _options) => {
     let token = Cookies.get('csrftoken');
     if (token) {
@@ -25,17 +29,15 @@ client.interceptors.request.use((request, _options) => {
     return request;
 })
 
-// TODO: move out
-
 render(() => (
     <Router root={App}>
-        <Route path='/new' component={SurveyForm} />
+        <Route path='/' component={SurveyForm} />
+        <Route path='/thanks' component={SurveyThanks} />
         <Route path='/login' component={Login} />
-        {/* <Route path='/logout' component={Logout} /> */}
         <Route path='/list' component={SurveyList} />
         <Route path='/view/:id' component={SurveyView} matchFilters={{
             id: /^\d+$/,
         }} />
-        <Route path="*" component={() => <p>404</p>} />
+        <Route path="*" component={NotFound} />
     </Router>
 ), document.getElementById('root')!);

@@ -1,10 +1,12 @@
 import { useParams } from "@solidjs/router";
 import { apiSurveysDestroy, apiSurveysRetrieve } from "../openapi"
 import { createResource, Match, Show, Switch } from "solid-js";
+import Page from "../components/Page";
 
 export default () => {
     const params = useParams()
-    const [survey] = createResource(params.id,
+    const [survey] = createResource(
+        params.id,
         async (id) => {
             const result = await apiSurveysRetrieve({
                 path: { id: parseInt(id) }
@@ -12,12 +14,22 @@ export default () => {
             if (result.data) {
                 return result.data;
             }
-            // XXX: not required?
-            console.log(result.error);
             throw result.error;
         });
 
-    return <>
+
+    function getSystemsRepr() {
+        const systems = survey()!.systems;
+        console.log(systems);
+        if (systems.length == 0) {
+            return <i>отсутствуют или не указаны</i>;
+        } else {
+            return <>{systems.map((x) => x.toUpperCase()).join(", ")}</>
+        }
+    }
+
+    return <Page heading="Просмотр анкеты">
+        <a href="/list">Назад к списку</a>
         <Show when={survey.loading}>
             <p>Загрузка...</p>
         </Show>
@@ -26,14 +38,14 @@ export default () => {
                 <p>Не удалось загрузить анкету!</p>
             </Match>
             <Match when={survey()}>
-                <h2>info</h2>
-                <p>name: {survey()!.name}</p>
-                <p>poc: {survey()!.point_of_contact}</p>
-                <p>phone: {survey()!.phone_number}</p>
-                <p>email: {survey()!.email}</p>
-                <p>address: {survey()!.address}</p>
-                <p>systems: {survey()!.systems.join(", ")}</p>
-                <h2>description</h2>
+                <h2>Основная информация</h2>
+                <p>Название компании: {survey()!.name}</p>
+                <p>Контактное лицо: {survey()!.point_of_contact}</p>
+                <p>Номер телефона: {survey()!.phone_number}</p>
+                <p>Электронная почта: {survey()!.email}</p>
+                <p>Адрес: {survey()!.address ?? <i>не указан</i>}</p>
+                <p>Системы на предприятии: {getSystemsRepr()}</p>
+                <h2>Описание заявки</h2>
                 <p>{survey()!.description}</p>
                 <button onClick={async () => {
                     const response = await apiSurveysDestroy({
@@ -47,5 +59,5 @@ export default () => {
                 </button>
             </Match>
         </Switch>
-    </>
+    </Page>
 }
